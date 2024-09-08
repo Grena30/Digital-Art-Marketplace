@@ -45,5 +45,4 @@ Each microservice will be responsible for a specific aspect of the platform:
 ## Deployment and Scaling
 
 * Services will be deployed using **Docker** containers, ensuring isolation for each service and allowing for independent scaling.
-* Login/Authorization service will be prioritized for **vertical scaling** to handle increasing user traffic. 
-* Artwork Management will be scaled based on storage needs and the volume of artwork uploads.
+* Artwork Management Service will be **scaled horizontally** based on the volume of artwork uploads.
