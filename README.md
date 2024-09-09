@@ -402,4 +402,4 @@ Digital Art Station addresses the **growing demand** for platforms that enable d
 ## Deployment and Scaling
 
 * Services will be deployed using **Docker** containers, ensuring isolation for each service and allowing for independent scaling.
-* Artwork Management Service will be **scaled horizontally** based on the volume of artwork uploads.
+* Both services will be **scaled horizontally**  ensuring **better performanc**e and **reliability** by distributing the load across multiple containers, allowing the system to handle more traffic and achieve **higher availability**.
