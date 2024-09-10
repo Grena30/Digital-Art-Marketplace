@@ -69,7 +69,7 @@ Digital Art Station addresses the **growing demand** for platforms that enable d
         "id": "int",
         "username": "string", 
         "email": "string",
-        "password": "float",
+        "password": "string",
     }
 ```
 
@@ -398,8 +398,56 @@ Digital Art Station addresses the **growing demand** for platforms that enable d
     }
     ```
 
+#### /api/subscribe
+
+**Method**: POST
+
+- **Body**
+
+    ```json
+    {
+        "user_id": "10",
+        "artist_id": "14"
+    }
+    ```
+
+- **Response**
+
+    **Status**: 200 Successful
+
+    ```json
+    {
+        "message": "Subscription successful"
+    }
+    ```
+
+
+#### /api/notify
+
+**Method**: POST
+
+- **Body**
+    ```json
+    {
+        "artist_id": "14",
+        "notification": "New artwork released!"
+    }
+    ```
+
+- **Response**
+
+    **Status**: 200 Successful
+
+    ```json
+    {
+        "message": "Notification sent to subscribers",
+        "artist_id": "14",
+        "notification": "New artwork released!"
+    }
+    ```
 
 ## Deployment and Scaling
 
 * Services will be deployed using **Docker** containers, ensuring isolation for each service and allowing for independent scaling.
 * Both services will be **scaled horizontally**  ensuring **better performanc**e and **reliability** by distributing the load across multiple containers, allowing the system to handle more traffic and achieve **higher availability**.
+* The deployment process will be made using **Docker Compose**, which will coordinate the **multi-container configuration**. It makes network, volume, and scalability settings for each service simpler.
