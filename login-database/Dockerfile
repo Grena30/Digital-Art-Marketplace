@@ -1,2 +1,2 @@
 FROM postgres:13
-COPY init.sql /docker-entrypoint-initdb.d/
+COPY init-login.sql /docker-entrypoint-initdb.d/
