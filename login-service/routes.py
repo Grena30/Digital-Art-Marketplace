@@ -1,6 +1,8 @@
 from flask import request, jsonify
-from __main__ import app, db
+from __main__ import app, db, limiter
 from models.user import User
+from sqlalchemy import text
+import time
 
 
 @app.route('/api/auth/login', methods=['POST'])
@@ -25,11 +27,9 @@ def register():
         password = data.get('password')
         confirm_password = data.get('confirm_password')
 
-        # Check if passwords match
         if password != confirm_password:
             return jsonify({'message': 'Passwords do not match'}), 400
 
-        # Check if username already exists
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:
             return jsonify({'message': 'Username already exists'}), 400
@@ -40,3 +40,11 @@ def register():
         db.session.commit()
 
         return jsonify({'message': 'User registered successfully'}), 201
+
+@app.route('/api/auth/status', methods=['GET'])
+def status():
+    try:
+        db.session.execute(text('SELECT 1'))
+        return jsonify({'status': 'OK', 'database': 'Connected'}), 200
+    except Exception as e:
+        return jsonify({'status': 'ERROR', 'database': 'Not connected', 'error': str(e)}), 500

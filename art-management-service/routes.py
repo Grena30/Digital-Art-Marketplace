@@ -1,6 +1,7 @@
 from flask import request, jsonify
-from __main__ import app, db
+from __main__ import app, db, limiter
 from models.artworks import Artworks
+from sqlalchemy import text
 
 
 @app.route('/api/artworks/<int:id>', methods=['GET'])
@@ -58,3 +59,11 @@ def post_artwork():
     db.session.commit()
     
     return jsonify({'message': 'Artwork created', 'id': new_artwork.id}), 201
+
+@app.route('/api/artworks/status', methods=['GET'])
+def status():
+    try:
+        db.session.execute(text('SELECT 1'))
+        return jsonify({'status': 'OK', 'database': 'Connected'}), 200
+    except Exception as e:
+        return jsonify({'status': 'ERROR', 'database': 'Not connected', 'error': str(e)}), 500
