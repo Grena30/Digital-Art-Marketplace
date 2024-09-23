@@ -1,0 +1,52 @@
+services:
+  login-service:
+    build: ./login-service
+    ports:
+      - "5000:5000"
+    depends_on:
+      - login-database
+    networks:
+      - marketplace-network
+
+  login-database:
+    build: ./login-database
+    environment:
+      POSTGRES_DB: logindb
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+    volumes:
+      - login-db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - marketplace-network
+
+  art-manangement-service:
+    build: ./art-management-service
+    ports:
+      - "5001:5001"
+    depends_on:
+      - art-database
+    networks:
+      - marketplace-network
+  
+  art-database:
+    build: ./art-database
+    environment:
+      POSTGRES_DB: artdb
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+    volumes:
+      - art-db-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - marketplace-network
+
+networks:
+  marketplace-network:
+    driver: bridge
+
+volumes:
+  login-db-data:
+  art-db-data:
