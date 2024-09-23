@@ -1,4 +1,14 @@
 services:
+  gateway:
+    build: ./gateway
+    ports:
+      - "3000:3000"
+    depends_on:
+      - login-service
+      - art-management-service
+    networks:
+      - marketplace-network
+
   login-service:
     build: ./login-service
     ports:
@@ -21,7 +31,7 @@ services:
     networks:
       - marketplace-network
 
-  art-manangement-service:
+  art-management-service:
     build: ./art-management-service
     ports:
       - "5001:5001"

@@ -20,7 +20,7 @@ def get_artwork(id):
     else:
         return jsonify({'message': 'Artwork not found'}), 404
 
-@app.route('/api/artworks', methods=['GET'])
+@app.route('/api/artworks/', methods=['GET'])
 def get_all_artworks():
     artworks = Artworks.query.all()
     return jsonify([{
@@ -33,7 +33,7 @@ def get_all_artworks():
         'created_at': artwork.created_at.isoformat()
     } for artwork in artworks])
 
-@app.route('/api/artworks', methods=['POST'])
+@app.route('/api/artworks/', methods=['POST'])
 def post_artwork():
     data = request.get_json()
     
