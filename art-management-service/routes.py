@@ -114,26 +114,8 @@ def status():
 @app.route('/api/artworks/profile', methods=['PUT'])
 @jwt_required()
 def update_profile():
-    current_user = get_jwt_identity()
+    user_id = get_jwt_identity()
     data = request.get_json()
-
-     # Request the user data from the login service using the current user's username
-    login_service_response = requests.get(f'{LOGIN_SERVICE_URL}/users/search?username={current_user}')
-    
-    if login_service_response.status_code != 200:
-        return jsonify({'message': 'Failed to fetch user from login service'}), login_service_response.status_code
-
-    user_info = login_service_response.json()
-    user_id = user_info.get('id')
-
-    if not user_id:
-        return jsonify({'message': 'User ID not found in login service'}), 404
-
-    # token = request.headers.get('Authorization')
-    # headers = {"Authorization": f"{token}"}
-    # logout_response = requests.get(f'{LOGIN_SERVICE_URL}/auth/logout', headers=headers)
-    # if logout_response.status_code != 200:
-    #     return jsonify({'message': 'Failed to logout user', 'header': headers}), logout_response.status_code
 
     # Send a PUT request to the login service to update the user profile
     update_response = requests.put(f'{LOGIN_SERVICE_URL}/users/{user_id}', json=data)
@@ -141,4 +123,7 @@ def update_profile():
     if update_response.status_code != 200:
         return jsonify({'message': update_response.json().get('message', 'Error occurred')}), update_response.status_code
     
-    return jsonify({'message': 'Profile updated successfully'}), 200
+    if data.get('password'):
+        return jsonify({'message': 'Password updated successfully. Please log-in again'}), 200
+    else:
+        return jsonify({'message': 'Profile updated successfully'}), 200

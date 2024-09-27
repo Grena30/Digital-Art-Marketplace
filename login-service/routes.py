@@ -16,7 +16,7 @@ def login():
         
         user = User.query.filter_by(email=email).first()
         if user and check_password_hash(user.password, password):
-            access_token = create_access_token(identity=user.username)
+            access_token = create_access_token(identity=user.id)
             return jsonify({'message': 'Login successful', 'access_token': access_token, 'user': user.username}), 200
         else:
             return jsonify({'message': 'Invalid email or password'}), 401
