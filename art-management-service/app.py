@@ -4,6 +4,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_jwt_extended import JWTManager
 from datetime import timedelta
+import redis
 
 
 ACCESS_EXPIRES = timedelta(minutes=15)
@@ -17,6 +18,8 @@ if __name__ == '__main__':
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = ACCESS_EXPIRES
     jwt = JWTManager(app)
     db = SQLAlchemy(app)
+
+    redis_client = redis.StrictRedis(host='redis', port=6379)
 
     limiter = Limiter(
     get_remote_address,
