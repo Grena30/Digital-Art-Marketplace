@@ -55,6 +55,11 @@ def register():
 def logout():
     return jsonify({'message': 'User logged out'}), 200
 
+@app.route('/api/auth/timeout', methods=['GET'])
+def timeout():
+    time.sleep(10)
+    return jsonify({'message': 'Timeout complete'}), 200
+
 @app.route('/api/auth/protected', methods=['GET'])
 @jwt_required()
 def protected():
