@@ -55,6 +55,11 @@ def register():
 def logout():
     return jsonify({'message': 'User logged out'}), 200
 
+@app.route('/api/auth/timeout', methods=['GET'])
+def timeout():
+    time.sleep(10)
+    return jsonify({'message': 'Timeout complete'}), 200
+
 @app.route('/api/auth/protected', methods=['GET'])
 @jwt_required()
 def protected():
@@ -138,3 +143,13 @@ def update_user(id):
 
     db.session.commit()
     return jsonify({'message': 'User updated successfully'}), 200
+
+@app.route('/api/users/<int:id>', methods=['DELETE'])
+def delete_user(id):
+    user = User.query.get(id)
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({'message': 'User deleted successfully'}), 200
