@@ -136,7 +136,13 @@ def post_artwork():
     )
     db.session.add(new_artwork)
     db.session.commit()
-    
+
+    redis_client.delete('popular_artworks')
+
+    search_pattern = 'search:artworks:*'
+    for key in redis_client.scan_iter(search_pattern):
+        redis_client.delete(key)
+
     return jsonify({'message': 'Artwork created', 'id': new_artwork.id}), 201
 
 @app.route('/api/artworks/<int:id>', methods=['PUT'])
@@ -165,6 +171,12 @@ def update_artwork(id):
 
     db.session.commit()
 
+    redis_client.delete('popular_artworks')
+
+    search_pattern = 'search:artworks:*'
+    for key in redis_client.scan_iter(search_pattern):
+        redis_client.delete(key)
+
     return jsonify({'message': 'Artwork updated successfully'}), 200
 
 
@@ -177,6 +189,12 @@ def delete_artwork(id):
 
     db.session.delete(artwork)
     db.session.commit()
+
+    redis_client.delete('popular_artworks')
+
+    search_pattern = 'search:artworks:*'
+    for key in redis_client.scan_iter(search_pattern):
+        redis_client.delete(key)
 
     return jsonify({'message': 'Artwork deleted successfully'}), 200
 
