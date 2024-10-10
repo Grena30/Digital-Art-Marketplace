@@ -1,6 +1,7 @@
 from flask import request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from __main__ import app, db, limiter, redis_client
+from __main__ import app, db, limiter, redis_client, socketio
+from flask_socketio import send, emit, join_room, leave_room
 from models.artworks import Artworks
 from sqlalchemy import text
 import requests
@@ -9,6 +10,48 @@ import json
 
 LOGIN_SERVICE_URL = 'http://login-service:5000/api/'
 
+# Websocket event handler
+@socketio.on('connect')
+def handle_connect():
+    send(f'{request.sid} connected')
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    send(f'{request.sid} disconnected')
+
+@socketio.on('message')
+def handle_message(message):
+    send(f"Message: {message}")
+
+@socketio.on('subscribe_art_updates')
+def subscribe_art_updates(data):
+    username = data.get('username')
+    user_validation = requests.get(f'{LOGIN_SERVICE_URL}/users/search?username={username}')
+    
+    if username:
+        if user_validation.status_code != 200:
+            send(f'User {username} does not exist', room=request.sid)
+        else:
+            join_room(username)
+            send(f'You subscribed for art updates from user {username}')
+    else:
+        send('Subscription failed, username missing')
+
+@socketio.on('unsubscribe_art_updates')
+def unsubscribe_art_updates(data):
+    username = data.get('username')
+    user_validation = requests.get(f'{LOGIN_SERVICE_URL}/users/search?username={username}')
+
+    if username:
+        if user_validation.status_code != 200:
+            send(f'User {username} does not exist', room=request.sid)
+        else:
+            leave_room(username)
+            send(f'You unsubscribed from art updates from user {username}', room=request.sid)
+    else:
+        send('Unsubscription failed, username missing', room=request.sid)
+
+# Routes
 @app.route('/api/artworks/<int:id>', methods=['GET'])
 def get_artwork(id):
     artwork = Artworks.query.get(id)
@@ -115,6 +158,8 @@ def search_artworks():
 @jwt_required()
 def post_artwork():
     data = request.get_json()
+    user_id = get_jwt_identity()
+    username = requests.get(f'{LOGIN_SERVICE_URL}/users/{user_id}').json().get('username')
     
     # Validate required fields
     required_fields = ['title', 'description', 'price', 'category', 'image_url']
@@ -142,6 +187,11 @@ def post_artwork():
     search_pattern = 'search:artworks:*'
     for key in redis_client.scan_iter(search_pattern):
         redis_client.delete(key)
+
+    # Emit the event to notify subscribers
+    message = "Posted a new art piece"
+    socketio.emit('post_art', {'user': username, 'message': message, 'art_piece': data.get('title')}, room=username)
+
 
     return jsonify({'message': 'Artwork created', 'id': new_artwork.id}), 201
 
