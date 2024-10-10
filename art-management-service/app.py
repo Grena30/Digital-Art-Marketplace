@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_jwt_extended import JWTManager
+from flask_socketio import SocketIO
 from datetime import timedelta
 import redis
 
@@ -16,6 +17,7 @@ if __name__ == '__main__':
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config["JWT_SECRET_KEY"] = "super-secret"
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = ACCESS_EXPIRES
+    socketio = SocketIO(app)
     jwt = JWTManager(app)
     db = SQLAlchemy(app)
 
@@ -29,4 +31,4 @@ if __name__ == '__main__':
 
     import routes
 
-    app.run(host='0.0.0.0', port=5001)
+    socketio.run(app, debug=True, host="0.0.0.0", port=5001, allow_unsafe_werkzeug=True)
